@@ -5,8 +5,8 @@ var router = express.Router();
 var mongo = require('mongodb').MongoClient;
 var objectId = require('mongodb').ObjectID;
 var assert = require('assert');
-//var url = 'mongodb://localhost:27017/juegos';
-var url = 'mongodb://mongo:27017';
+var url = 'mongodb://localhost:27017/juegos';
+//var url = 'mongodb://mongo:27017';
 var db;
 mongo.connect(url, function (err, client) {
     if (!err) {
@@ -15,123 +15,105 @@ mongo.connect(url, function (err, client) {
     }
 });
 
-app.listen(3009);
+app.listen(9090);
 
-console.log('Listening on port 3009...');
+console.log('Listening on port 9090...');
 app.use(express.json())
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT")
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT, DELETE")
     next();
 });
 
 //Code   
 app.get('/api/juegos/', function (req, res, next) {
-    db.collection('juegos').find().toArray((err, result) => {
-        if (err) return console.log(err)
-        res.send({ juegos: result })
-    })
+    mongo.connect(url, function (err, client) {
+        if (!err) {
+            db = client.db('juegos');
+        }
+        db.collection('juegos').find().toArray((err, result) => {
+            if (err) return console.log(err)
+            res.send({ juegos: result })
+        });
+    });
+
 });
 
 app.get('/api/juegos/:id', function (req, res, next) {
-    db.collection('juegos').find({id:parseInt(req.params.id)}).toArray((err, result) => {
-        res.send({juegos: result})
-    }) 
-    
+    console.log(req.params.id);
+    db.collection('juegos').find({ _id: objectId(req.params.id) }).toArray((err, result) => {
+        res.send({ juegos: result })
+    })
+
 });
 
 
-router.post('/api/juegos/', function (req, res, next) {
+app.post('/api/juegos', function (req, res, next) {
+    //console.log(req);
     const juego = {
+        //_id: req.body._id,
         name: req.body.name,
         consola: req.body.consola,
         comentario: req.body.comentario,
-        avatar:req.body.avatar
+        avatar: req.body.avatar
     }
-    db.collection('juegos').insertOne(juego, function (err, result) {
-        assert.equal(null, err);
-        if (err) return console.log(err)
-        console.log("Item inserted");
-        res.status(201).send(result);
+    console.log(juego);
+    mongo.connect(url, function (err, client) {
+        if (!err) {
+            db = client.db('juegos');
+        }
+        db.collection('juegos').insertOne(juego, function (err, result) {
+            assert.equal(null, err);
+            if (err) return console.log(err)
+            console.log("Item inserted");
+            res.status(201).send(result);
+
+        });
     });
+
 });
 
-router.delete('/api/juegos/:id', function (req, res, next) {
-    var id = req.params.id;
-    db.collection('juegos').deleteOne({ "_id": objectId(id) }, function (err, result) {
-        assert.equal(null, err);
-        if (err) return console.log(err)
-        console.log('Item deleted');
-        res.status(204).send(result);
-    });
-});
-
-
-router.put('/api/juegos/:id', function (req, res, next) {
-    var id = req.params.id;
+app.put('/api/juegos', function (req, res, next) {
+    var id = req.body._id;
     const item = {
         name: req.body.name,
-        consola: req.body.consola,
+        consola: req.body.consolas,
         comentario: req.body.comentario,
-        avatar:req.body.avatar
-    }
-
-    db.collection('juegos').updateOne({ "_id": objectId(id) }, { $set: item }, function (err, result) {
-        assert.equal(null, err);
-        console.log('Item updated');
-        res.status(204).send(item);
+        avatar: req.body.avatar
+    };
+    mongo.connect(url, function (err, client) {
+        if (!err) {
+            console.log("We are connected PUT");
+            db = client.db('juegos');
+        }
+        console.log(item);
+        console.log(id);
+        db.collection('juegos').updateOne({ "_id": objectId(id) }, { $set: item }, function (err, result) {
+            assert.equal(null, err);
+            console.log('Item updated');
+            res.status(204).send(item);
+            client.close();
+        });
     });
-
 });
 
-app.put('/api/juegos/:id', (req, res) => {
-
-
-    mongo.connect(url, function (err, db) {
-        const juegosDB = db.db('juegosDB');
-        var cursor = juegosDB.collection('juegos').find({ id: parseInt(req.params.id) });
-        cursor.next(function (err, doc) {
-            if (doc) {
-                juegosDB.collection('juegos').updateOne({ id: parseInt(req.params.id) }, {
-                    $set: {
-                        name: req.body.name,
-                        consola: req.body.consola,
-                        comentario: req.body.comentario,
-                        avatar:req.body.avatar
-                    }
-                })
-
-                res.status(204).send(" Actualizado exitosamente")
-            }
-            else {
-                res.status(404).send('ID brindado no se encontro')
-            }
+app.delete('/api/juegos/:id', (req, res, next) => {
+    var id = req.params.id;
+    mongo.connect(url, function (err, client) {
+        if (!err) {
+            console.log("We are connected DELETE");
+            db = client.db('juegos');
+        }
+        
+        db.collection('juegos').deleteOne({ "_id": objectId(id) }, function (err, result) {
+            assert.equal(null, err);
+            console.log('Item Deleted');
+            if(err) return console.log(err);
+            res.status(204).send(result);
+            client.close();
         });
-
     });
-
-
-});
-
-app.delete('/api/juegos/:id', (req, res) => {
-    
-
-    mongo.connect(url, function (err, db) {
-        const juegosDB = db.db('juegosDB');
-        var cursor = juegosDB.collection('juegos').find({ id: parseInt(req.params.id) });
-        cursor.next(function (err, doc) {
-            if (doc) {
-                juegosDB.collection('juegos').deleteOne({ id: parseInt(req.params.id) })
-                res.status(204).send("Eliminado exitosamente")
-            }
-            else {
-                res.status(404).send('ID brindado no se encontro')
-            }
-        });
-
-    });
-
 });
 /*app.use(express.json());
 

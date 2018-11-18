@@ -16,7 +16,7 @@ class VideoGames extends React.Component {
         super(props);
         this.state = {
             juegos: [],
-            id:0,
+            id: 0,
             name: "",
             consolas: "",
             comentario: [],
@@ -59,7 +59,17 @@ class VideoGames extends React.Component {
     addJuego(juego) {//create a new recipe
         let juegos = this.state.juegos;
         juegos.push(juego);
-        localStorage.setItem('juegos', JSON.stringify(juegos));
+        //localStorage.setItem('juegos', JSON.stringify(juegos));
+        const url = 'http://localhost:9090/api/juegos';
+        fetch(url,
+            {
+                method: 'POST',
+                body: JSON.stringify(juego),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+        console.log(juego);
         this.setState({ juegos: juegos });
         this.showAddModal();
     }
@@ -70,28 +80,45 @@ class VideoGames extends React.Component {
     editJuego(newName, newConsolas, newComentario
         , newAvatar, currentlyEditing) {//edit an existing recipe
         let juegos = this.state.juegos;
-        juegos[currentlyEditing] = { name: newName, consolas: newConsolas, avatar: newAvatar, comentario: newComentario };
-        localStorage.setItem('juegos', JSON.stringify(juegos));
+        juegos[currentlyEditing] = { _id: juegos[currentlyEditing]._id, name: newName, consolas: newConsolas, avatar: newAvatar, comentario: newComentario }; 
+        var juego = { _id: juegos[currentlyEditing]._id, name: newName, consolas: newConsolas, avatar: newAvatar, comentario: newComentario };
+        //var juego = juegos[currentlyEditing];
+        //localStorage.setItem('juegos', JSON.stringify(juegos));
+        const url = 'http://localhost:9090/api/juegos';
+        console.log(JSON.stringify(juego));
+        fetch(url, {
+            method: 'PUT',
+            body: JSON.stringify(juego),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
         this.setState({ juegos: juegos });
         this.showEditModal(currentlyEditing);
     }
     //Delete
     deleteJuego(index) {//delete an existing recipe
-        let juegos = this.state.juegos.slice();
+        let juegos = this.state.juegos;
+        console.log('_id' + juegos[index]._id);
+        //localStorage.setItem('juegos', JSON.stringify(juegos));
+        const url = 'http://localhost:9090/api/juegos/' + juegos[index]._id;
+        fetch(url, {
+            method: 'DELETE',
+            //body:JSON.stringify({id:index})
+        })
         juegos.splice(index, 1);
-        localStorage.setItem('juegos', JSON.stringify(juegos));
         this.setState({ juegos: juegos, currentlyEditing: 0 });
     }
     render() {
         const juegos = this.state.juegos;
-
+        console.log(juegos);
         return (
             <div className="jumbotron">
 
                 <div className="title">
                     <div className="title-word">Juegos</div>
                     <div className="title-word">CRUD</div>
-                    <div className="title-word">Local Storage</div>
+                    <div className="title-word">Ya casi</div>
                     <div className="title-word"><Button className="btn btn-outline-primary widthcien" onClick={this.showAddModal}>Agregar Juegos</Button></div>
                 </div>
 
@@ -112,8 +139,8 @@ class VideoGames extends React.Component {
                                             <div className="row">
 
                                                 {
-                                                    
-                                                    Array.from(Object.keys(juego.consolas), k=>juego.consolas[k]).map((consola, index) => (
+
+                                                    Array.from(Object.keys(juego.consolas), k => juego.consolas[k]).map((consola, index) => (
                                                         <div className="col-md-6" key={index}>
                                                             <h2>{consola}</h2>
                                                         </div>
@@ -127,7 +154,12 @@ class VideoGames extends React.Component {
                                         </div>
                                     </div>
                                 </div>
-                                <EditJuego onShow={this.state.showEdit} onEdit={this.editJuego} onEditModal={() => { this.showEditModal(this.state.currentlyEditing) }} currentlyEditing={this.state.currentlyEditing} juego={juegos[this.state.currentlyEditing]} />
+                                <EditJuego
+                                    onShow={this.state.showEdit}
+                                    onEdit={this.editJuego} 
+                                    onEditModal={() => { this.showEditModal(this.state.currentlyEditing) }} 
+                                    currentlyEditing={this.state.currentlyEditing} 
+                                    juego={juegos[this.state.currentlyEditing]} />
                             </div>
                         ))}
                     </div>
