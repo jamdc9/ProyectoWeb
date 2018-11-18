@@ -5,8 +5,17 @@ var router = express.Router();
 var mongo = require('mongodb').MongoClient;
 var objectId = require('mongodb').ObjectID;
 var assert = require('assert');
-var url = 'mongodb://localhost:27017/juegos';
-//var url = 'mongodb://mongo:27017';
+//var url = 'mongodb://localhost:27017/juegos';
+var url = 'mongodb://mongo:27017';
+var redis = require("redis");
+var cache = require('express-redis-cache')({
+    //host: 'localhost',port: 6379
+    host: 'redis-host',port: 6379
+});
+cache.on('error', function(error){
+    console.log('cache error!'+ error);
+    return;
+});
 var db;
 mongo.connect(url, function (err, client) {
     if (!err) {
@@ -27,7 +36,7 @@ app.use(function (req, res, next) {
 });
 
 //Code   
-app.get('/api/juegos/', function (req, res, next) {
+app.get('/api/juegos/', cache.route({expire : 90, name:'allGames'}) , function (req, res, next) {
     mongo.connect(url, function (err, client) {
         if (!err) {
             db = client.db('juegos');
@@ -54,7 +63,7 @@ app.post('/api/juegos', function (req, res, next) {
     const juego = {
         //_id: req.body._id,
         name: req.body.name,
-        consola: req.body.consola,
+        consolas: req.body.consolas,
         comentario: req.body.comentario,
         avatar: req.body.avatar
     }
@@ -64,21 +73,22 @@ app.post('/api/juegos', function (req, res, next) {
             db = client.db('juegos');
         }
         db.collection('juegos').insertOne(juego, function (err, result) {
-            assert.equal(null, err);
-            if (err) return console.log(err)
-            console.log("Item inserted");
-            res.status(201).send(result);
-
+            cache.del('allGames', (err, juego) => {
+                assert.equal(null, err);
+                if (err) return console.log(err)
+                console.log("Item inserted");
+                res.status(201).send(result);
+            });
+            client.close();
         });
     });
-
 });
 
 app.put('/api/juegos', function (req, res, next) {
     var id = req.body._id;
     const item = {
         name: req.body.name,
-        consola: req.body.consolas,
+        consolas: req.body.consolas,
         comentario: req.body.comentario,
         avatar: req.body.avatar
     };
@@ -105,9 +115,9 @@ app.delete('/api/juegos/:id', (req, res, next) => {
             console.log("We are connected DELETE");
             db = client.db('juegos');
         }
-        
+
         db.collection('juegos').deleteOne({ "_id": objectId(id) }, function (err, result) {
-            assert.equal(null, err);
+            //assert.equal(null, err);
             console.log('Item Deleted');
             if(err) return console.log(err);
             res.status(204).send(result);

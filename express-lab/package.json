@@ -13,7 +13,9 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "express": "^4.16.4",
+    "express-redis-cache": "^1.1.3",
     "mongoose": "^5.3.4",
+    "mongoose-redis-cache": "0.0.3",
     "redis": "^2.8.0"
   }
 }

@@ -6,7 +6,7 @@ import { Modal, ControlLabel, FormGroup, FormControl, Button } from 'react-boots
 export class AddJuego extends React.Component {
     constructor(props) {//create a state to handle the new recipe
         super(props);
-        this.state = { name: "", consola: "", comentario: "", avatar: "" };
+        this.state = { name: "", consolas: "", comentario: "", avatar: "" };
         this.handleJuegoNameChange = this.handleJuegoNameChange.bind(this);
         this.handleJuegoConsolasChange = this.handleJuegoConsolasChange.bind(this);
         this.handleJuegoComentarioChange = this.handleJuegoComentarioChange.bind(this);
@@ -18,7 +18,7 @@ export class AddJuego extends React.Component {
         this.setState({ name: e.target.value });
     }
     handleJuegoConsolasChange(e) {//change the ingredients to reflect user input
-        this.setState({ consola: e.target.value });
+        this.setState({ consolas: e.target.value });
     }
     handleJuegoComentarioChange(e) {//change the ingredients to reflect user input
         this.setState({ comentario: e.target.value });
@@ -31,17 +31,17 @@ export class AddJuego extends React.Component {
         const onAdd = this.props.onAdd;
         const regExp = /\s*,\s*/;
         var newName = this.state.name;
-        var newConsolas = this.state.consola.split(regExp);
+        var newConsolas = this.state.consolas.split(regExp);
         var newComentario = this.state.comentario;
         var newAvatar = this.state.avatar;
 
         var newJuego = { name: newName, consolas: newConsolas, comentario: newComentario, avatar: newAvatar };
         onAdd(newJuego);
-        this.setState({ name: "", consola: "", comentario: "", avatar: "" });
+        this.setState({ name: "", consolas: "", comentario: "", avatar: "" });
     }
     handleCancel() {
         const onAddModal = this.props.onAddModal;
-        this.setState({ name: "", consola: "", comentario: "", avatar: "" });
+        this.setState({ name: "", consolas: "", comentario: "", avatar: "" });
         onAddModal();
     }
     render() {
@@ -49,8 +49,8 @@ export class AddJuego extends React.Component {
         var regex1 = /^\S/;
         var regex2 = /^[^,\s]/;
         var regex3 = /[^,\s]$/;
-        const validJuego = regex1.test(this.state.name) && regex2.test(this.state.consola)
-            && regex3.test(this.state.consola) && regex1.test(this.state.comentario)
+        const validJuego = regex1.test(this.state.name) && regex2.test(this.state.consolas)
+            && regex3.test(this.state.consolas) && regex1.test(this.state.comentario)
             && regex1.test(this.state.avatar);
         return (
             <div >

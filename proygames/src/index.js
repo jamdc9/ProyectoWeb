@@ -43,6 +43,7 @@ class VideoGames extends React.Component {
             { name: "Mario Kart", consolas: ["Todas las consolas de Nintendo despues del NES"], comentario: ["Pierde Amigos"], avatar: "https://vignette.wikia.nocookie.net/mariokart/images/7/7e/Mario-kart-double-dash-1.jpg/revision/latest?cb=20140521140749&path-prefix=es" }
         ];
         this.setState({ juegos: juegos });*/
+        //var url = "http://localhost:9090/api/juegos"
         var url = "http://localhost:9090/api/juegos"
         fetch(url)
             .then(res => res.json())
