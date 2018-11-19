@@ -1,16 +1,15 @@
-const express = require('express');
-const app = express();
-
-var router = express.Router();
+var express = require('express');
+var cors = require("cors");
 var mongo = require('mongodb').MongoClient;
 var objectId = require('mongodb').ObjectID;
+var app = express();
 var assert = require('assert');
 //var url = 'mongodb://localhost:27017/juegos';
-var url = 'mongodb://mongo-host:27017';
+var url = 'mongodb://mongo:27017';
 var redis = require("redis");
 var cache = require('express-redis-cache')({
     //host: 'localhost',port: 6379
-    host: 'redis-host',port: 6379
+    host: 'redis',port: 6379
 });
 cache.on('error', function(error){
     console.log('cache error!'+ error);
@@ -24,9 +23,9 @@ mongo.connect(url, function (err, client) {
     }
 });
 
-app.listen(9090);
+app.listen(3001);
 
-console.log('Listening on port 9090...');
+console.log('Listening on port 3001...');
 app.use(express.json())
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -34,7 +33,7 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT, DELETE")
     next();
 });
-
+app.use(cors());
 //Code   
 app.get('/api/juegos/', cache.route({expire : 90, name:'allGames'}) , function (req, res, next) {
     mongo.connect(url, function (err, client) {

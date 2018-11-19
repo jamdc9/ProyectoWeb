@@ -43,8 +43,8 @@ class VideoGames extends React.Component {
             { name: "Mario Kart", consolas: ["Todas las consolas de Nintendo despues del NES"], comentario: ["Pierde Amigos"], avatar: "https://vignette.wikia.nocookie.net/mariokart/images/7/7e/Mario-kart-double-dash-1.jpg/revision/latest?cb=20140521140749&path-prefix=es" }
         ];
         this.setState({ juegos: juegos });*/
-        //var url = "http://localhost:9090/api/juegos"
-        var url = "http://localhost:9090/api/juegos"
+        //var url = "http://localhost:3001/api/juegos"
+        var url = "http://localhost:3001/api/juegos"
         fetch(url)
             .then(res => res.json())
             .then(json => {
@@ -61,7 +61,7 @@ class VideoGames extends React.Component {
         let juegos = this.state.juegos;
         juegos.push(juego);
         //localStorage.setItem('juegos', JSON.stringify(juegos));
-        const url = 'http://localhost:9090/api/juegos';
+        const url = 'http://localhost:3001/api/juegos';
         fetch(url,
             {
                 method: 'POST',
@@ -85,7 +85,7 @@ class VideoGames extends React.Component {
         var juego = { _id: juegos[currentlyEditing]._id, name: newName, consolas: newConsolas, avatar: newAvatar, comentario: newComentario };
         //var juego = juegos[currentlyEditing];
         //localStorage.setItem('juegos', JSON.stringify(juegos));
-        const url = 'http://localhost:9090/api/juegos';
+        const url = 'http://localhost:3001/api/juegos';
         console.log(JSON.stringify(juego));
         fetch(url, {
             method: 'PUT',
@@ -102,7 +102,7 @@ class VideoGames extends React.Component {
         let juegos = this.state.juegos;
         console.log('_id' + juegos[index]._id);
         //localStorage.setItem('juegos', JSON.stringify(juegos));
-        const url = 'http://localhost:9090/api/juegos/' + juegos[index]._id;
+        const url = 'http://localhost:3001/api/juegos/' + juegos[index]._id;
         fetch(url, {
             method: 'DELETE',
             //body:JSON.stringify({id:index})
