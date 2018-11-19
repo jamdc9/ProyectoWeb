@@ -9,3 +9,10 @@ RUN npm run build --prod
 FROM nginx:alpine
 COPY nginx/default.conf /etc/nginx/conf.d/
 COPY --from=node /app/build /usr/share/nginx/html
+
+#FROM node:8
+#WORKDIR /usr/src/app
+#RUN npm install
+#COPY . .
+#EXPOSE 3000
+#CMD ["npm", "start"]

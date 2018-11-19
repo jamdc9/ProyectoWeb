@@ -1,6 +1,6 @@
 version: "3"
 services:
-  redis:
+  redis-host:
     image: redis
     ports:
       - "6379:6379"
@@ -9,7 +9,7 @@ services:
       options:
         max-size: "100MB"
         max-file: "3"
-  mongo:
+  mongo-host:
     image: mongo
     ports:
     - "27017:27017"
@@ -17,10 +17,10 @@ services:
     build: ./express-lab
     ports:
     - "3009:3009"
-    depends_on:
-    - mongo
-    - redis
     command: node index.js
+    depends_on:
+    - mongo-host
+    - redis-host
   web:
     build: ./proygames
     ports:
